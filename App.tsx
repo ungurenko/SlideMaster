@@ -1,0 +1,128 @@
+
+import React, { useState, useEffect } from 'react';
+import { WelcomeScreen } from './components/WelcomeScreen';
+import { CarouselEditor } from './components/CarouselEditor';
+import { AdminPanel } from './components/AdminPanel';
+import { SavedProject, CarouselConfig, HeroImage, Template, DEFAULT_TEMPLATES } from './types';
+
+type ViewState = 'home' | 'editor' | 'admin';
+
+const App: React.FC = () => {
+  const [view, setView] = useState<ViewState>('home');
+  const [currentProject, setCurrentProject] = useState<SavedProject | null>(null);
+  const [initialTemplateConfig, setInitialTemplateConfig] = useState<CarouselConfig | null>(null);
+  const [projects, setProjects] = useState<SavedProject[]>([]);
+  const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
+  const [templates, setTemplates] = useState<Template[]>(DEFAULT_TEMPLATES);
+
+  // Load data from localStorage on mount
+  useEffect(() => {
+    loadProjects();
+    loadHeroImages();
+    loadTemplates();
+  }, [view]);
+
+  const loadProjects = () => {
+    const stored = localStorage.getItem('carousel_projects');
+    if (stored) {
+      try {
+        setProjects(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse projects", e);
+      }
+    }
+  };
+
+  const loadHeroImages = () => {
+    const stored = localStorage.getItem('hero_images');
+    if (stored) {
+      try {
+        setHeroImages(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse hero images", e);
+      }
+    }
+  };
+
+  const loadTemplates = () => {
+    const stored = localStorage.getItem('carousel_templates');
+    if (stored) {
+      try {
+        setTemplates(JSON.parse(stored));
+      } catch (e) {
+        console.error("Failed to parse templates", e);
+        setTemplates(DEFAULT_TEMPLATES);
+      }
+    } else {
+      // First run: initialize with defaults
+      setTemplates(DEFAULT_TEMPLATES);
+    }
+  };
+
+  const handleCreateNew = (templateConfig?: CarouselConfig) => {
+    setCurrentProject(null);
+    setInitialTemplateConfig(templateConfig || null);
+    setView('editor');
+  };
+
+  const handleOpenProject = (project: SavedProject) => {
+    setCurrentProject(project);
+    setInitialTemplateConfig(null);
+    setView('editor');
+  };
+
+  const handleDeleteProject = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (confirm("Вы уверены, что хотите удалить этот проект?")) {
+      const updated = projects.filter(p => p.id !== id);
+      setProjects(updated);
+      localStorage.setItem('carousel_projects', JSON.stringify(updated));
+    }
+  };
+
+  const handleBackToHome = () => {
+    setView('home');
+    setCurrentProject(null);
+  };
+
+  const handleSave = () => {
+      // Refresh projects if we are in editor and save happens
+      loadProjects();
+  };
+
+  return (
+    <>
+      {view === 'home' && (
+        <WelcomeScreen 
+          recentProjects={projects}
+          heroImages={heroImages}
+          templates={templates}
+          onCreateNew={handleCreateNew}
+          onOpenProject={handleOpenProject}
+          onDeleteProject={handleDeleteProject}
+          onAdminClick={() => setView('admin')}
+        />
+      )}
+      
+      {view === 'editor' && (
+        <CarouselEditor 
+          initialProject={currentProject}
+          initialConfig={initialTemplateConfig}
+          templates={templates}
+          onBack={handleBackToHome}
+          onSave={handleSave}
+        />
+      )}
+
+      {view === 'admin' && (
+        <AdminPanel 
+          onBack={() => setView('home')}
+          onUpdateImages={(imgs) => setHeroImages(imgs)}
+          onUpdateTemplates={(tmps) => setTemplates(tmps)}
+        />
+      )}
+    </>
+  );
+};
+
+export default App;
