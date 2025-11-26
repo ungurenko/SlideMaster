@@ -28,11 +28,18 @@ const HomeIcon = () => (
   </svg>
 );
 
+const SparklesIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+    </svg>
+  );
+
 interface WelcomeScreenProps {
   recentProjects: SavedProject[];
   heroImages?: HeroImage[];
   templates: Template[];
   onCreateNew: (templateConfig?: CarouselConfig) => void;
+  onAutoCreate: () => void;
   onOpenProject: (project: SavedProject) => void;
   onDeleteProject: (id: string, e: React.MouseEvent) => void;
   onAdminClick: () => void;
@@ -42,7 +49,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   recentProjects, 
   heroImages = [],
   templates,
-  onCreateNew, 
+  onCreateNew,
+  onAutoCreate,
   onOpenProject,
   onDeleteProject,
   onAdminClick
@@ -82,29 +90,18 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
         {/* HERO SECTION */}
         <section className="flex flex-col md:flex-row items-center gap-12 md:gap-24 min-h-[400px]">
            
-           {/* LEFT: Stack of Examples - Soft Pastel Cards */}
+           {/* LEFT: Stack of Examples */}
            <div className="flex-1 relative w-full h-[350px] md:h-[450px] flex items-center justify-center select-none animate-float group cursor-pointer perspective-1000">
-              
-              {/* DECORATIVE PARTICLES (Pop out on hover) */}
+              {/* DECORATIVE PARTICLES */}
               <div className="absolute top-1/2 left-1/2 w-full h-full -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0">
-                  {/* Top Right - Yellow/Gold */}
                   <div className="absolute top-20 right-20 w-8 h-8 bg-[#F4D35E]/40 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out delay-75 group-hover:translate-x-8 group-hover:-translate-y-8 group-hover:scale-150" />
-                  
-                  {/* Bottom Left - Green/Sage */}
                   <div className="absolute bottom-20 left-20 w-12 h-12 bg-[#9CAF88]/30 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-all duration-700 ease-out delay-100 group-hover:-translate-x-10 group-hover:translate-y-4 group-hover:scale-125" />
-                  
-                  {/* Top Left - Small Sparkle */}
-                  <div className="absolute top-10 left-10 text-[#E6B8A2] text-4xl opacity-0 group-hover:opacity-80 transition-all duration-500 ease-out delay-200 group-hover:-translate-x-4 group-hover:-translate-y-4 rotate-12 group-hover:rotate-45">
-                     ✦
-                  </div>
               </div>
 
               {/* Back Card */}
               <div className="absolute w-64 h-80 rounded-[32px] shadow-[0_20px_40px_-10px_rgba(230,184,162,0.3)] transform transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                 rotate-[-12deg] -translate-x-16 translate-y-4 overflow-hidden bg-[#E6B8A2] z-0
-                group-hover:-translate-x-44 group-hover:rotate-[-25deg] group-hover:scale-105 group-hover:shadow-[0_30px_60px_-12px_rgba(230,184,162,0.5)]
-                
-                hover:!translate-x-[-11rem] hover:!-translate-y-16 hover:!rotate-[-5deg] hover:!scale-110 hover:!z-50 hover:!shadow-[0_50px_100px_-20px_rgba(230,184,162,0.6)]"
+                group-hover:-translate-x-44 group-hover:rotate-[-25deg] group-hover:scale-105 group-hover:shadow-[0_30px_60px_-12px_rgba(230,184,162,0.5)]"
               >
                  {backImg ? (
                     <img src={backImg.url} className="w-full h-full object-cover" alt="" />
@@ -116,9 +113,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               {/* Middle Card */}
               <div className="absolute w-64 h-80 rounded-[32px] shadow-[0_20px_40px_-15px_rgba(156,175,136,0.3)] transform transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                 rotate-[-5deg] -translate-x-6 translate-y-0 overflow-hidden bg-[#CCD5AE] z-10
-                group-hover:-translate-y-20 group-hover:rotate-0 group-hover:scale-110 group-hover:shadow-[0_40px_80px_-12px_rgba(156,175,136,0.5)]
-                
-                hover:!translate-y-[-6rem] hover:!scale-110 hover:!z-50 hover:!shadow-[0_50px_100px_-20px_rgba(156,175,136,0.6)]"
+                group-hover:-translate-y-20 group-hover:rotate-0 group-hover:scale-110 group-hover:shadow-[0_40px_80px_-12px_rgba(156,175,136,0.5)]"
               >
                  {middleImg ? (
                     <img src={middleImg.url} className="w-full h-full object-cover opacity-80 mix-blend-multiply" alt="" />
@@ -130,27 +125,21 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               {/* Front Card */}
               <div className="absolute w-64 h-80 rounded-[32px] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.08)] bg-white border border-white/50 transform transition-all duration-700 ease-[cubic-bezier(0.34,1.56,0.64,1)]
                 rotate-[6deg] translate-x-8 -translate-y-4 overflow-hidden flex flex-col z-20 relative
-                group-hover:translate-x-36 group-hover:rotate-[25deg] group-hover:scale-105 group-hover:shadow-[0_40px_80px_-12px_rgba(0,0,0,0.15)]
-                
-                hover:!translate-x-[9rem] hover:!-translate-y-16 hover:!rotate-[5deg] hover:!scale-110 hover:!z-50 hover:!shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)]"
+                group-hover:translate-x-36 group-hover:rotate-[25deg] group-hover:scale-105 group-hover:shadow-[0_40px_80px_-12px_rgba(0,0,0,0.15)]"
               >
-                 {/* Gloss/Sheen Effect on Hover */}
-                 <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/40 to-transparent z-30 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-
                  {frontImg ? (
                     <img src={frontImg.url} className="w-full h-full object-cover" alt="" />
                  ) : (
                     <img src="https://i.imgur.com/zFTeJGf.jpeg" className="w-full h-full object-cover" alt="Visual Stories" />
                  )}
               </div>
-
            </div>
 
-           {/* RIGHT: Welcome Text */}
+           {/* RIGHT: Welcome Text & Actions */}
            <div className="flex-1 w-full max-w-lg">
               <div className="bg-white p-10 rounded-[40px] shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-[#F5F2ED]">
                  <span className="inline-block px-4 py-1.5 rounded-full bg-[#F5F2ED] text-[#8C847C] text-xs font-semibold uppercase tracking-wider mb-6">
-                    Beta v1.0
+                    Beta v1.1
                  </span>
                  
                  <h1 className="text-4xl md:text-5xl font-semibold mb-6 text-[#333] tracking-tight font-[Inter] leading-tight">
@@ -161,13 +150,25 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                     Редактор каруселей, который заботится о вашем контенте. Мягкая типографика, плавные формы и ничего лишнего.
                  </p>
                  
-                 <button 
-                   onClick={() => onCreateNew()}
-                   className="w-full py-4 bg-[#9CAF88] text-white text-lg font-medium rounded-2xl shadow-[0_10px_25px_rgba(156,175,136,0.4)] hover:bg-[#8A9E75] hover:shadow-[0_15px_35px_rgba(156,175,136,0.5)] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3"
-                 >
-                    <span>Начать творить</span>
-                    <span className="bg-white/20 rounded-full w-6 h-6 flex items-center justify-center text-sm">→</span>
-                 </button>
+                 <div className="flex flex-col gap-4">
+                    {/* Primary: Manual Create */}
+                    <button 
+                      onClick={() => onCreateNew()}
+                      className="w-full py-4 bg-[#4A4036] text-white text-lg font-medium rounded-2xl shadow-[0_10px_25px_rgba(74,64,54,0.3)] hover:bg-[#3A3026] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3"
+                    >
+                        <span>Начать с чистого листа</span>
+                    </button>
+
+                     {/* Secondary: Auto Create */}
+                     <button 
+                      onClick={onAutoCreate}
+                      className="w-full py-4 bg-[#9CAF88] text-white text-lg font-medium rounded-2xl shadow-[0_10px_25px_rgba(156,175,136,0.4)] hover:bg-[#8A9E75] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden group"
+                    >
+                        <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out"></div>
+                        <SparklesIcon />
+                        <span>Создать автоматически</span>
+                    </button>
+                 </div>
               </div>
            </div>
         </section>
@@ -177,10 +178,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
             <div className="flex items-center justify-between mb-4">
                  <h3 className="text-xl font-medium text-[#333]">Готовые настроения</h3>
             </div>
-            {/* 
-                Increased padding to p-8 to ensure hover transform (-translate-y-3) 
-                is not clipped by the overflow container. 
-            */}
             <div className="flex gap-6 overflow-x-auto p-8 no-scrollbar snap-x -mx-8 px-8">
                 {visibleTemplates.map((tpl) => (
                     <div 
@@ -197,13 +194,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                             group-hover:scale-105
                             group-hover:border-[#E8DDD1]"
                         >
-                            {/* Color Blob Background */}
                             <div 
                                 className="absolute inset-0 opacity-20 transition-transform duration-500 group-hover:scale-110"
                                 style={{ backgroundColor: tpl.previewColor }}
                             />
-                            
-                            {/* Preview text */}
                             <span style={{ color: tpl.textColor === '#FFFFFF' ? '#555' : tpl.textColor, fontFamily: tpl.config.titleFont }} className="text-xl font-medium z-10 relative">
                                 {tpl.name}
                             </span>
@@ -231,7 +225,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                             onClick={() => onOpenProject(project)}
                             className="bg-white p-4 rounded-[24px] shadow-[0_4px_20px_rgba(0,0,0,0.02)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.05)] border border-[#F5F2ED] transition-all cursor-pointer group hover:-translate-y-2 duration-300 ease-out"
                         >
-                            {/* Thumbnail placeholder */}
                             <div className="w-full aspect-[4/5] bg-[#F5F2ED] rounded-2xl mb-4 flex items-center justify-center overflow-hidden relative">
                                 {project.config.backgroundImage ? (
                                     <img src={project.config.backgroundImage} className="w-full h-full object-cover opacity-90" alt="" />
@@ -244,13 +237,10 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                                         </div>
                                     </div>
                                 )}
-                                
-                                {/* Overlay Actions */}
                                 <div className="absolute inset-0 bg-white/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
                                     <span className="px-5 py-2 bg-white text-[#333] text-xs font-bold rounded-full shadow-lg transform scale-95 group-hover:scale-100 transition-transform">Редактировать</span>
                                 </div>
                             </div>
-
                             <div className="flex justify-between items-center px-1">
                                 <div>
                                     <h4 className="font-semibold text-[#333] text-sm line-clamp-1">{project.name}</h4>
@@ -272,7 +262,6 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
 
       </div>
 
-      {/* FOOTER */}
       <footer className="py-10 text-center text-xs text-[#8C847C]/60 mt-auto relative">
         <p>Сделано с заботой о визуале</p>
       </footer>

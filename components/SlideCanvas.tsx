@@ -1,6 +1,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { SlideData } from '../types';
+import { RichTextEditor } from './RichTextEditor';
 
 interface SlideCanvasProps {
   slide: SlideData;
@@ -53,29 +54,6 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
   const titleColor = config.titleColor || config.textColor;
   const bodyColor = config.bodyColor || config.textColor;
 
-  // Auto-resize textarea logic
-  const titleRef = useRef<HTMLTextAreaElement>(null);
-  const subtitleRef = useRef<HTMLTextAreaElement>(null);
-  const bodyRef = useRef<HTMLTextAreaElement>(null);
-  const contentTitleRef = useRef<HTMLTextAreaElement>(null);
-
-  const autoResize = (el: HTMLTextAreaElement | null) => {
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = `${el.scrollHeight}px`;
-  };
-
-  // Resize on content change or mount
-  useEffect(() => {
-    if (slide.isCover) {
-      autoResize(titleRef.current);
-      autoResize(subtitleRef.current);
-    } else {
-      autoResize(contentTitleRef.current);
-      autoResize(bodyRef.current);
-    }
-  }, [slide.text, slide.subtitle, slide.title, slide.isCover, config.titleFont, config.bodyFont, config.titleFontSize, config.bodyFontSize]);
-
   return (
     <div style={wrapperStyle} className="relative overflow-hidden shadow-lg rounded-sm ring-1 ring-black/5">
       <div
@@ -125,16 +103,11 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
           {slide.isCover ? (
             // COVER SLIDE LAYOUT
             <div className="w-full flex flex-col items-center justify-end gap-6">
-               <textarea
-                ref={titleRef}
-                value={slide.text}
-                onChange={(e) => {
-                  onTextChange(slide.id, e.target.value);
-                  autoResize(e.target);
-                }}
+               <RichTextEditor
+                html={slide.text}
+                onChange={(val) => onTextChange(slide.id, val)}
                 placeholder="ЗАГОЛОВОК"
-                spellCheck={false}
-                className="w-full bg-transparent resize-none outline-none border-none placeholder-white/50 text-center overflow-hidden"
+                configColor={titleColor}
                 style={{
                   fontFamily: config.titleFont,
                   color: titleColor,
@@ -142,21 +115,17 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
                   fontWeight: 900,
                   lineHeight: 1.2, 
                   textTransform: 'uppercase',
-                  textShadow: '0 4px 24px rgba(0,0,0,0.5)'
+                  textShadow: '0 4px 24px rgba(0,0,0,0.5)',
+                  width: '100%',
+                  textAlign: 'center'
                 }}
-                rows={1}
               />
               
-              <textarea
-                ref={subtitleRef}
-                value={slide.subtitle || ''}
-                onChange={(e) => {
-                  if (onSubtitleChange) onSubtitleChange(slide.id, e.target.value);
-                  autoResize(e.target);
-                }}
+              <RichTextEditor
+                html={slide.subtitle || ''}
+                onChange={(val) => { if (onSubtitleChange) onSubtitleChange(slide.id, val); }}
                 placeholder="(ваше пояснение)"
-                spellCheck={false}
-                className="w-full bg-transparent resize-none outline-none border-none placeholder-white/50 text-center overflow-hidden"
+                configColor={bodyColor}
                 style={{
                   fontFamily: config.bodyFont,
                   color: bodyColor,
@@ -164,25 +133,21 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
                   fontWeight: 400,
                   lineHeight: 1.3,
                   opacity: 0.95,
-                  textShadow: '0 2px 12px rgba(0,0,0,0.4)'
+                  textShadow: '0 2px 12px rgba(0,0,0,0.4)',
+                  width: '100%',
+                  textAlign: 'center'
                 }}
-                rows={1}
               />
             </div>
           ) : (
             // CONTENT SLIDE LAYOUT
             <>
               {/* Slide Header */}
-              <textarea
-                ref={contentTitleRef}
-                value={slide.title || ''}
-                onChange={(e) => {
-                  if (onTitleChange) onTitleChange(slide.id, e.target.value);
-                  autoResize(e.target);
-                }}
+              <RichTextEditor
+                html={slide.title || ''}
+                onChange={(val) => { if (onTitleChange) onTitleChange(slide.id, val); }}
                 placeholder="ЗАГОЛОВОК СЛАЙДА"
-                spellCheck={false}
-                className="w-full bg-transparent resize-none outline-none border-none placeholder-white/50 text-left overflow-hidden"
+                configColor={titleColor}
                 style={{
                   fontFamily: config.titleFont,
                   color: titleColor,
@@ -191,29 +156,27 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
                   textTransform: 'uppercase',
                   lineHeight: 1.4, 
                   marginBottom: '30px',
-                  textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                  textShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                  width: '100%',
+                  textAlign: 'left'
                 }}
-                rows={1}
               />
 
               {/* Slide Body Text */}
-              <textarea
-                ref={bodyRef}
-                value={slide.text}
-                onChange={(e) => {
-                  onTextChange(slide.id, e.target.value);
-                  autoResize(e.target);
-                }}
+              <RichTextEditor
+                html={slide.text}
+                onChange={(val) => onTextChange(slide.id, val)}
                 placeholder="Ваш полезный контент здесь..."
-                spellCheck={false}
-                className="w-full bg-transparent resize-none outline-none border-none placeholder-white/30"
+                configColor={bodyColor}
                 style={{
                   fontFamily: config.bodyFont,
                   color: bodyColor,
                   fontSize: `${config.bodyFontSize}px`,
                   fontWeight: 400,
                   lineHeight: 1.5,
-                  textShadow: '0 2px 4px rgba(0,0,0,0.3)' 
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  width: '100%',
+                  textAlign: 'left'
                 }}
               />
               

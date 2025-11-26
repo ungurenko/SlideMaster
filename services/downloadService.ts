@@ -44,65 +44,19 @@ export const downloadSlides = async (slideIds: string[], refs: React.MutableRefO
 
       // --- FIX: NOISE LAYER BLEND MODE ---
       // html2canvas fails to render 'mix-blend-mode: overlay', rendering it as a gray opaque layer.
-      // We find the noise layer and drastically reduce its opacity to emulate the texture 
-      // without washing out the colors.
       const noiseLayer = clone.querySelector('.export-noise-layer') as HTMLElement;
       if (noiseLayer) {
-        // Get the original opacity set by the user
         const computedStyle = window.getComputedStyle(noiseLayer);
         const originalOpacity = parseFloat(computedStyle.opacity || '0');
         
-        // Force blend mode to normal (as html2canvas will do anyway)
         noiseLayer.style.mixBlendMode = 'normal';
-        
-        // Reduce opacity to 25% of the original. 
-        // e.g., 50% Overlay ~= 12.5% Normal gray on top of dark bg.
-        // This heuristic keeps the grain visible but stops it from turning the image gray.
+        // Reduce opacity to emulate overlay effect on dark background
         noiseLayer.style.opacity = (originalOpacity * 0.25).toString();
       }
-      // -----------------------------------
 
-      // 4. CONVERT TEXTAREAS TO DIVS
-      // We must copy the value directly from the original element because cloneNode
-      // does not copy the current 'value' of textareas if changed by user.
-      const originalTextareas = originalElement.querySelectorAll('textarea');
-      const clonedTextareas = clone.querySelectorAll('textarea');
-
-      originalTextareas.forEach((source, i) => {
-        const target = clonedTextareas[i];
-        if (!target) return;
-
-        const div = document.createElement('div');
-        const computedStyle = window.getComputedStyle(source); 
-
-        // Copy Styles
-        div.style.width = '100%';
-        div.style.height = source.style.height || `${source.scrollHeight}px`; 
-        div.style.fontFamily = computedStyle.fontFamily;
-        div.style.fontSize = computedStyle.fontSize;
-        div.style.fontWeight = computedStyle.fontWeight;
-        div.style.lineHeight = computedStyle.lineHeight;
-        div.style.color = computedStyle.color;
-        div.style.textAlign = computedStyle.textAlign;
-        div.style.textTransform = computedStyle.textTransform;
-        div.style.textShadow = computedStyle.textShadow;
-        div.style.letterSpacing = computedStyle.letterSpacing;
-        div.style.whiteSpace = 'pre-wrap'; 
-        div.style.wordBreak = 'break-word';
-        div.style.padding = computedStyle.padding;
-        div.style.boxSizing = computedStyle.boxSizing;
-        
-        div.style.display = 'flex';
-        div.style.flexDirection = 'column';
-        div.style.justifyContent = 'center'; 
-
-        // Copy Content (CRITICAL: Use value from source, not innerHTML from clone)
-        div.textContent = source.value;
-
-        target.parentNode?.replaceChild(div, target);
-      });
-
-      // 5. CAPTURE
+      // 4. CAPTURE
+      // Since we are now using divs (contentEditable), we don't need to swap textareas.
+      // html2canvas captures formatted text (bold, color) inside divs automatically.
       const canvas = await window.html2canvas(clone, {
         scale: 2, 
         useCORS: true, 
@@ -111,7 +65,7 @@ export const downloadSlides = async (slideIds: string[], refs: React.MutableRefO
         allowTaint: true,
       });
 
-      // 6. BLOB GENERATION
+      // 5. BLOB GENERATION
       const blob = await new Promise<Blob | null>((resolve) => {
         canvas.toBlob((b: Blob | null) => resolve(b), 'image/jpeg', 0.95);
       });
@@ -123,7 +77,7 @@ export const downloadSlides = async (slideIds: string[], refs: React.MutableRefO
     } catch (err) {
       console.error(`Error processing slide ${index + 1}:`, err);
     } finally {
-      // 7. CLEAN UP
+      // 6. CLEAN UP
       if (clone && document.body.contains(clone)) {
         document.body.removeChild(clone);
       }

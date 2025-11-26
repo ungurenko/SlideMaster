@@ -6,4 +6,6 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
+  // Explicitly allowing env variables if needed, though default usually works for VITE_ prefix
+  envPrefix: 'VITE_',
 });

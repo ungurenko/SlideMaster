@@ -5,6 +5,7 @@ import { SlideCanvas } from './SlideCanvas';
 import { Button } from './Button';
 import { Slider } from './Slider';
 import { downloadSlides } from '../services/downloadService';
+import { compressImage } from '../utils/imageUtils';
 
 // --- Icons (Thinner strokes for minimalism) ---
 const UploadIcon = () => (
@@ -57,8 +58,9 @@ const SettingsIcon = () => (
 );
 
 const CopyIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504 1.125 1.125 1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5" />
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 3H4V16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    <path d="M8 7H20V21H8V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
@@ -79,40 +81,6 @@ const ChevronRightIcon = () => (
     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
   </svg>
 );
-
-// Utility to compress images
-const compressImage = (file: File, maxWidth: number, quality: number): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-  
-          if (width > maxWidth) {
-            height = (maxWidth / width) * height;
-            width = maxWidth;
-          }
-  
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-              ctx.drawImage(img, 0, 0, width, height);
-              resolve(canvas.toDataURL('image/jpeg', quality));
-          } else {
-              reject(new Error("Canvas error"));
-          }
-        };
-        img.onerror = reject;
-      };
-      reader.onerror = reject;
-    });
-};
 
 const NEON_VARIANTS = [
   { color: '#00FF94', name: 'Green' },
@@ -166,6 +134,7 @@ const AccordionSection: React.FC<{
 interface CarouselEditorProps {
   initialProject?: SavedProject | null;
   initialConfig?: CarouselConfig | null;
+  initialSlides?: SlideData[] | null;
   templates: Template[];
   onBack: () => void;
   onSave: () => void;
@@ -174,6 +143,7 @@ interface CarouselEditorProps {
 export const CarouselEditor: React.FC<CarouselEditorProps> = ({ 
   initialProject, 
   initialConfig, 
+  initialSlides,
   templates,
   onBack, 
   onSave 
@@ -181,6 +151,7 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
   // --- STATE ---
   const [slides, setSlides] = useState<SlideData[]>(() => {
     if (initialProject) return initialProject.slides;
+    if (initialSlides) return initialSlides;
     return [
       { id: 'slide-1', text: 'ГЛАВНАЯ\nОШИБКА', subtitle: '(сохрани пост и попробуй)', isCover: true },
       { id: 'slide-2', title: 'ПОНИМАНИЕ', text: 'Почему важно понимать свою аудиторию лучше, чем они понимают себя сами.', isCover: false },
@@ -309,10 +280,11 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
     const file = e.target.files?.[0];
     if (file) {
       try {
-          const compressed = await compressImage(file, 1080, 0.75);
+          // Increased quality/resolution slightly, but keeping compression to save Storage
+          const compressed = await compressImage(file, 1200, 0.75);
           setConfig((prev) => ({ ...prev, backgroundImage: compressed }));
       } catch (err) {
-          alert("Ошибка при загрузке изображения");
+          alert("Ошибка при обработке изображения.");
       }
     }
   };
@@ -438,9 +410,18 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
     if (!name) return;
     const { backgroundImage, ...styleConfig } = config;
     const newPreset: StylePreset = { id: Date.now().toString(), name, config: styleConfig };
-    const updatedPresets = [...presets, newPreset];
-    setPresets(updatedPresets);
-    localStorage.setItem('carousel_presets', JSON.stringify(updatedPresets));
+    
+    try {
+      const updatedPresets = [...presets, newPreset];
+      localStorage.setItem('carousel_presets', JSON.stringify(updatedPresets));
+      setPresets(updatedPresets);
+    } catch (e: any) {
+      if (e.name === 'QuotaExceededError') {
+        alert("Ошибка сохранения: Хранилище браузера переполнено. Попробуйте удалить старые пресеты или проекты.");
+      } else {
+        alert("Не удалось сохранить стиль.");
+      }
+    }
   };
 
   const applyPreset = (preset: StylePreset) => {
@@ -470,11 +451,22 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
       slides,
       config
     };
-    const otherProjects = savedProjects.filter(p => p.id !== newProject.id);
-    const updatedProjects = [newProject, ...otherProjects];
-    setSavedProjects(updatedProjects);
-    localStorage.setItem('carousel_projects', JSON.stringify(updatedProjects));
-    onSave();
+    
+    try {
+        const otherProjects = savedProjects.filter(p => p.id !== newProject.id);
+        const updatedProjects = [newProject, ...otherProjects];
+        // Attempt save
+        localStorage.setItem('carousel_projects', JSON.stringify(updatedProjects));
+        // Only update state if successful
+        setSavedProjects(updatedProjects);
+        onSave();
+    } catch (e: any) {
+        if (e.name === 'QuotaExceededError') {
+             alert("Критическая ошибка: В хранилище браузера нет места. \n\nСовет: Удалите старые проекты или используйте менее 'тяжелые' фоновые изображения.");
+        } else {
+             alert("Не удалось сохранить проект.");
+        }
+    }
   };
 
   const loadProject = (project: SavedProject) => {
@@ -496,26 +488,25 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
     <div className="flex h-screen overflow-hidden font-[Inter] bg-[#FDFBF7]">
       
       {/* LEFT SIDEBAR - Soft White Panel */}
-      <aside className="w-84 flex-shrink-0 bg-white border-r border-[#F0EBE5] flex flex-col z-20 shadow-[0_0_20px_rgba(0,0,0,0.02)]">
+      <aside className="w-72 flex-shrink-0 bg-white border-r border-[#F0EBE5] flex flex-col z-20 shadow-[0_0_20px_rgba(0,0,0,0.02)]">
         
-        {/* HEADER */}
-        <div className="flex items-center justify-between px-6 py-5 border-b border-[#F0EBE5]">
-          <div className="flex items-center gap-3">
-            <button onClick={onBack} className="p-2 rounded-full hover:bg-[#F9F9F9] text-[#6B6054] transition-colors">
+        {/* HEADER - OPTIMIZED FOR COMPACT WIDTH */}
+        <div className="flex items-center justify-between px-4 py-4 border-b border-[#F0EBE5] min-h-[72px]">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <button onClick={onBack} className="flex-shrink-0 p-2 rounded-full hover:bg-[#F9F9F9] text-[#6B6054] transition-colors" title="На главную">
               <HomeIcon />
             </button>
-             <div className="w-7 h-7 bg-[#9CAF88] rounded-full flex items-center justify-center text-white font-bold font-sans text-xs shadow-sm">S</div>
-            <h1 className="text-base font-semibold text-[#333]">Редактор</h1>
+            <h1 className="text-sm font-bold text-[#333] truncate">Редактор</h1>
           </div>
           
-          <div className="flex gap-1">
-             <button onClick={() => setIsPresetsOpen(true)} className="p-2 rounded-full hover:bg-[#F9F9F9] text-[#8C847C]">
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+             <button onClick={() => setIsPresetsOpen(true)} className="p-2 rounded-full hover:bg-[#F9F9F9] text-[#8C847C]" title="Пресеты">
                 <SettingsIcon />
              </button>
-             <button onClick={saveProject} className="p-2 rounded-full hover:bg-[#F9F9F9] text-[#8C847C]">
+             <button onClick={saveProject} className="p-2 rounded-full hover:bg-[#F9F9F9] text-[#8C847C]" title="Сохранить">
                 <SaveIcon />
              </button>
-             <button onClick={() => setIsHistoryOpen(true)} className="p-2 rounded-full hover:bg-[#F9F9F9] text-[#8C847C]">
+             <button onClick={() => setIsHistoryOpen(true)} className="p-2 rounded-full hover:bg-[#F9F9F9] text-[#8C847C]" title="История">
                 <HistoryIcon />
              </button>
           </div>

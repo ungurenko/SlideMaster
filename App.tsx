@@ -3,14 +3,19 @@ import React, { useState, useEffect } from 'react';
 import { WelcomeScreen } from './components/WelcomeScreen';
 import { CarouselEditor } from './components/CarouselEditor';
 import { AdminPanel } from './components/AdminPanel';
-import { SavedProject, CarouselConfig, HeroImage, Template, DEFAULT_TEMPLATES } from './types';
+import { Wizard } from './components/Wizard';
+import { SavedProject, CarouselConfig, HeroImage, Template, DEFAULT_TEMPLATES, SlideData } from './types';
 
-type ViewState = 'home' | 'editor' | 'admin';
+type ViewState = 'home' | 'editor' | 'admin' | 'wizard';
 
 const App: React.FC = () => {
   const [view, setView] = useState<ViewState>('home');
   const [currentProject, setCurrentProject] = useState<SavedProject | null>(null);
+  
+  // New: separate config vs full slides injection
   const [initialTemplateConfig, setInitialTemplateConfig] = useState<CarouselConfig | null>(null);
+  const [initialSlides, setInitialSlides] = useState<SlideData[] | null>(null);
+
   const [projects, setProjects] = useState<SavedProject[]>([]);
   const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
   const [templates, setTemplates] = useState<Template[]>(DEFAULT_TEMPLATES);
@@ -62,12 +67,25 @@ const App: React.FC = () => {
   const handleCreateNew = (templateConfig?: CarouselConfig) => {
     setCurrentProject(null);
     setInitialTemplateConfig(templateConfig || null);
+    setInitialSlides(null); // Reset slides for manual creation
+    setView('editor');
+  };
+
+  const handleAutoCreate = () => {
+    setView('wizard');
+  };
+
+  const handleWizardFinish = (config: CarouselConfig, slides: SlideData[]) => {
+    setCurrentProject(null);
+    setInitialTemplateConfig(config);
+    setInitialSlides(slides);
     setView('editor');
   };
 
   const handleOpenProject = (project: SavedProject) => {
     setCurrentProject(project);
     setInitialTemplateConfig(null);
+    setInitialSlides(null);
     setView('editor');
   };
 
@@ -98,9 +116,19 @@ const App: React.FC = () => {
           heroImages={heroImages}
           templates={templates}
           onCreateNew={handleCreateNew}
+          onAutoCreate={handleAutoCreate} 
           onOpenProject={handleOpenProject}
           onDeleteProject={handleDeleteProject}
           onAdminClick={() => setView('admin')}
+        />
+      )}
+      
+      {view === 'wizard' && (
+        <Wizard 
+          isOpen={true} 
+          onClose={() => setView('home')} 
+          templates={templates}
+          onFinish={handleWizardFinish}
         />
       )}
       
@@ -108,6 +136,7 @@ const App: React.FC = () => {
         <CarouselEditor 
           initialProject={currentProject}
           initialConfig={initialTemplateConfig}
+          initialSlides={initialSlides} 
           templates={templates}
           onBack={handleBackToHome}
           onSave={handleSave}

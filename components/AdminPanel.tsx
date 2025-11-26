@@ -1,47 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
 import { HeroImage, Template, DEFAULT_TEMPLATES, DEFAULT_FONT_OPTIONS } from '../types';
 import { Button } from './Button';
+import { compressImage } from '../utils/imageUtils';
 
 interface AdminPanelProps {
   onBack: () => void;
   onUpdateImages: (images: HeroImage[]) => void;
   onUpdateTemplates: (templates: Template[]) => void;
 }
-
-// Utility to compress images
-const compressImage = (file: File, maxWidth: number, quality: number): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result as string;
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth) {
-          height = (maxWidth / width) * height;
-          width = maxWidth;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-        } else {
-            reject(new Error("Canvas context failed"));
-        }
-      };
-      img.onerror = (error) => reject(error);
-    };
-    reader.onerror = (error) => reject(error);
-  });
-};
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack, onUpdateImages, onUpdateTemplates }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -78,7 +44,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack, onUpdateImages, 
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === 'neodark') {
+    // Get password from environment variables
+    const adminPassword = (import.meta as any).env.VITE_ADMIN_PASSWORD;
+
+    if (password === adminPassword) {
       setIsAuthenticated(true);
       setError('');
     } else {
@@ -93,6 +62,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack, onUpdateImages, 
     if (!file) return;
 
     try {
+        // Use shared utility
         const compressedBase64 = await compressImage(file, 800, 0.7);
         const newImage: HeroImage = {
             id: Date.now().toString(),
@@ -128,21 +98,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack, onUpdateImages, 
   };
 
   const saveImages = (newImages: HeroImage[]) => {
-    setImages(newImages);
     try {
         localStorage.setItem('hero_images', JSON.stringify(newImages));
+        setImages(newImages);
         onUpdateImages(newImages);
-    } catch (e) {
-        alert("Ошибка: Недостаточно места (QuotaExceededError).");
+    } catch (e: any) {
+        if (e.name === 'QuotaExceededError') {
+             alert("Ошибка: Недостаточно места в хранилище (LocalStorage Quota). Удалите старые изображения.");
+        } else {
+             console.error(e);
+        }
     }
   };
 
   // --- TEMPLATE HANDLERS ---
 
   const saveTemplates = (newTemplates: Template[]) => {
-    setTemplates(newTemplates);
-    localStorage.setItem('carousel_templates', JSON.stringify(newTemplates));
-    onUpdateTemplates(newTemplates);
+    try {
+        localStorage.setItem('carousel_templates', JSON.stringify(newTemplates));
+        setTemplates(newTemplates);
+        onUpdateTemplates(newTemplates);
+    } catch (e: any) {
+        if (e.name === 'QuotaExceededError') {
+             alert("Ошибка сохранения шаблонов: Хранилище переполнено.");
+        }
+    }
   };
 
   const toggleTemplateVisibility = (id: string) => {
