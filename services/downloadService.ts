@@ -19,9 +19,11 @@ export const downloadSlides = async (slideIds: string[], refs: React.MutableRefO
   const zip = new window.JSZip();
   const folder = zip.folder("instagram-carousel");
 
-  const promises = slideIds.map(async (id, index) => {
+  // Changed to sequential processing to avoid concurrency issues with html2canvas and SVG filters
+  for (let i = 0; i < slideIds.length; i++) {
+    const id = slideIds[i];
     const originalElement = refs.current[id];
-    if (!originalElement) return;
+    if (!originalElement) continue;
 
     let clone: HTMLElement | null = null;
 
@@ -71,20 +73,22 @@ export const downloadSlides = async (slideIds: string[], refs: React.MutableRefO
       });
 
       if (blob) {
-        const fileName = `slide_${(index + 1).toString().padStart(2, '0')}.jpg`;
+        const fileName = `slide_${(i + 1).toString().padStart(2, '0')}.jpg`;
         folder.file(fileName, blob);
       }
+      
+      // Small delay to allow browser to clear canvas/svg filter buffers
+      await new Promise(resolve => setTimeout(resolve, 50));
+
     } catch (err) {
-      console.error(`Error processing slide ${index + 1}:`, err);
+      console.error(`Error processing slide ${i + 1}:`, err);
     } finally {
       // 6. CLEAN UP
       if (clone && document.body.contains(clone)) {
         document.body.removeChild(clone);
       }
     }
-  });
-
-  await Promise.all(promises);
+  }
 
   const content = await zip.generateAsync({ type: "blob" });
   window.saveAs(content, "slidemaster-export.zip");

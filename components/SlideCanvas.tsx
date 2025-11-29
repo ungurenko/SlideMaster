@@ -71,25 +71,23 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
           />
         )}
 
-        {/* Non-Cover Styling Layers */}
+        {/* Non-Cover Styling Layers (Dark Overlay) */}
         {!slide.isCover && (
-          <>
-            {/* Adjustable Dark Overlay */}
-            <div 
-              className="absolute inset-0 bg-[#0F0E0D] transition-colors duration-300" 
-              style={{ opacity: config.overlayOpacity / 100 }}
-            />
-            
-            {/* Adjustable Noise Texture - Fine Grain */}
-            {/* Added 'export-noise-layer' class for targeting during download */}
-            <div 
-              className="absolute inset-0 pointer-events-none mix-blend-overlay export-noise-layer" 
-              style={{ 
-                backgroundImage: `url("${NOISE_SVG_DATA_URI}")`,
-                opacity: config.noiseOpacity / 100
-              }}
-            />
-          </>
+          <div 
+            className="absolute inset-0 bg-[#0F0E0D] transition-colors duration-300" 
+            style={{ opacity: config.overlayOpacity / 100 }}
+          />
+        )}
+
+        {/* Noise Texture (Only on non-cover slides) */}
+        {!slide.isCover && (
+          <div 
+            className="absolute inset-0 pointer-events-none mix-blend-overlay export-noise-layer" 
+            style={{ 
+              backgroundImage: `url("${NOISE_SVG_DATA_URI}")`,
+              opacity: config.noiseOpacity / 100
+            }}
+          />
         )}
 
         {/* Cover Bottom Gradient Overlay (Critical for text readability) */}
