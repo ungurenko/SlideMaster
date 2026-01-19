@@ -35,19 +35,31 @@ npm run preview
 | View | Компонент | Описание |
 |------|-----------|----------|
 | `home` | WelcomeScreen | Главная, выбор шаблонов, недавние проекты |
-| `editor` | CarouselEditor | Основной редактор (926 LOC) |
+| `editor` | CarouselEditor | Основной редактор |
 | `wizard` | Wizard | AI-генерация карусели из текста |
 | `admin` | AdminPanel | Управление шаблонами и hero-изображениями |
 
 ### Key Directories
 
 ```
-components/     # React UI компоненты
-services/       # Бизнес-логика
-  ├── autoParser.ts      # Парсинг текста → слайды (3 формата)
-  └── downloadService.ts # Экспорт в ZIP+JPG через html2canvas
-utils/          # Утилиты (сжатие изображений)
-types.ts        # TypeScript типы, DEFAULT_TEMPLATES
+components/
+  ├── CarouselEditor.tsx    # Основной редактор слайдов
+  ├── WelcomeScreen.tsx     # Главная страница
+  ├── Wizard.tsx            # AI-генерация карусели
+  ├── AdminPanel.tsx        # Управление шаблонами
+  ├── SlideCanvas.tsx       # Рендеринг отдельного слайда
+  ├── ui/                   # shadcn/ui компоненты (button, dialog, slider, etc.)
+  └── draggable/            # Drag-and-drop система
+      ├── SlideEditor.tsx   # Редактор слайда с перетаскиваемыми блоками
+      ├── DraggableBlock.tsx# Перетаскиваемый текстовый блок
+      ├── ResizeHandles.tsx # Ручки изменения размера
+      └── SnapGuides.tsx    # Направляющие для выравнивания
+services/
+  ├── autoParser.ts         # Парсинг текста → слайды (3 формата)
+  └── downloadService.ts    # Экспорт в ZIP+JPG через html2canvas
+utils/
+  └── imageUtils.ts         # Сжатие изображений
+types.ts                    # TypeScript типы, DEFAULT_TEMPLATES
 ```
 
 ### Core Types (types.ts)
@@ -67,8 +79,15 @@ SavedProject     // Сохранённый проект
   - `hero_images` — HeroImage[]
   - `carousel_templates` — Template[]
 
-### External Libraries (CDN в index.html)
+### Dependencies
 
+**npm:**
+- @dnd-kit/* — drag-and-drop для перетаскивания блоков на слайдах
+- @radix-ui/* + shadcn — UI компоненты (dialog, dropdown, slider, tooltip)
+- lucide-react — иконки
+- sonner — toast-уведомления
+
+**CDN (index.html):**
 - html2canvas 1.4.1 — рендеринг DOM в canvas
 - JSZip 3.10.1 — создание ZIP-архивов
 - FileSaver.js 2.0.5 — сохранение файлов
