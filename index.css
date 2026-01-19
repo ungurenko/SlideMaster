@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Smooth scrolling and base aesthetics */
+body {
+  background-color: #FFFDF9; /* Cream/Milk background */
+  color: #333333; /* Soft Charcoal */
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Hide scrollbar for clean UI in panels */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom Scrollbar for lists where needed - Soft aesthetic */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #E5E0D8;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #D1CCC0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.4s ease-out;
+}
+
+
+
+@layer base {
+  :root {
+    /* SlideMaster Warm Palette */
+    --background: 43 100% 99%;          /* #FFFDF9 cream */
+    --foreground: 0 0% 20%;             /* #333333 soft charcoal */
+    --card: 0 0% 100%;                  /* white */
+    --card-foreground: 0 0% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 90 20% 61%;              /* #9CAF88 sage green */
+    --primary-foreground: 0 0% 100%;    /* white */
+    --secondary: 20 45% 81%;            /* #E6B8A2 soft clay */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 30 15% 92%;                /* #F0EBE5 light beige */
+    --muted-foreground: 30 8% 50%;      /* #8C847C muted brown */
+    --accent: 47 87% 66%;               /* #F4D35E warm yellow */
+    --accent-foreground: 0 0% 20%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 30 15% 88%;               /* #E5E0D8 */
+    --input: 30 15% 88%;
+    --ring: 90 20% 61%;                 /* sage green */
+    --chart-1: 90 20% 61%;
+    --chart-2: 47 87% 66%;
+    --chart-3: 20 45% 81%;
+    --chart-4: 30 15% 70%;
+    --chart-5: 0 0% 40%;
+    --radius: 1rem;                     /* более rounded углы */
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
