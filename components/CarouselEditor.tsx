@@ -13,6 +13,7 @@ import { migrateConfig } from '../utils/migrateConfig';
 import { useHistory } from '../hooks/useHistory';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { OnboardingTooltip } from './OnboardingTooltip';
+import { CTABuilder } from './CTABuilder';
 
 // --- Icons (Thinner strokes for minimalism) ---
 const UploadIcon = () => (
@@ -68,6 +69,12 @@ const CopyIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M16 3H4V16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
     <path d="M8 7H20V21H8V7Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+const MegaphoneIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
   </svg>
 );
 
@@ -224,6 +231,7 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isPresetsOpen, setIsPresetsOpen] = useState(false);
   const [presets, setPresets] = useState<StylePreset[]>([]);
+  const [isCTABuilderOpen, setIsCTABuilderOpen] = useState(false);
 
   // Onboarding
   const { currentStep, nextStep, skipOnboarding } = useOnboarding();
@@ -405,12 +413,25 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
     const newSlide: SlideData = {
       ...currentSlide,
       id: `slide-${Date.now()}`,
-      isCover: false, 
+      isCover: false,
     };
 
     const newSlides = [...slides];
     newSlides.splice(currentSlideIndex + 1, 0, newSlide);
     setSlides(newSlides);
+  };
+
+  const addCTASlide = (ctaSlide: SlideData) => {
+    if (slides.length >= 10) {
+      toast.error('Максимум 10 слайдов в карусели');
+      return;
+    }
+    setSlides((prev) => [...prev, ctaSlide]);
+    setIsCTABuilderOpen(false);
+    // Scroll to the new slide
+    setTimeout(() => {
+      scrollToSlide(slides.length);
+    }, 100);
   };
 
   const removeSlide = () => {
@@ -1080,7 +1101,7 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
                  <span className="text-xs font-semibold text-[#6B6054]">Слайд {currentSlideIndex + 1} / {slides.length}</span>
              </div>
 
-             <div className="grid grid-cols-3 gap-3">
+             <div className="grid grid-cols-2 gap-3 mb-3">
                  <button
                    onClick={addSlide}
                    disabled={slides.length >= 10}
@@ -1099,6 +1120,18 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
                  >
                     <div className="text-[#8C847C] group-hover:text-[#333]"><CopyIcon /></div>
                     <span className="text-[10px] mt-1 font-medium text-[#8C847C]">Копия</span>
+                 </button>
+             </div>
+
+             <div className="grid grid-cols-2 gap-3">
+                 <button
+                   onClick={() => setIsCTABuilderOpen(true)}
+                   disabled={slides.length >= 10}
+                   className="flex flex-col items-center justify-center p-3 bg-white border border-[#F0EBE5] rounded-xl hover:bg-[#F9F9F9] hover:border-[#9CAF88] transition-all disabled:opacity-50 group shadow-sm"
+                   title="Добавить CTA-слайд"
+                 >
+                    <div className="text-[#8C847C] group-hover:text-[#9CAF88]"><MegaphoneIcon /></div>
+                    <span className="text-[10px] mt-1 font-medium text-[#8C847C]">CTA</span>
                  </button>
 
                  <button
@@ -1288,6 +1321,15 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
           </div>
         </div>
       )}
+
+      {/* CTA Builder Modal */}
+      <CTABuilder
+        isOpen={isCTABuilderOpen}
+        onClose={() => setIsCTABuilderOpen(false)}
+        templates={templates}
+        currentConfig={config}
+        onAddToCarousel={addCTASlide}
+      />
 
     </div>
   );

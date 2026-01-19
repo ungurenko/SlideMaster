@@ -4,6 +4,7 @@ import { WelcomeScreen } from './components/WelcomeScreen';
 import { CarouselEditor } from './components/CarouselEditor';
 import { AdminPanel } from './components/AdminPanel';
 import { Wizard } from './components/Wizard';
+import { CTABuilder } from './components/CTABuilder';
 import { Toaster } from './components/ui/sonner';
 import { SavedProject, CarouselConfig, HeroImage, Template, DEFAULT_TEMPLATES, SlideData } from './types';
 
@@ -20,6 +21,7 @@ const App: React.FC = () => {
   const [projects, setProjects] = useState<SavedProject[]>([]);
   const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
   const [templates, setTemplates] = useState<Template[]>(DEFAULT_TEMPLATES);
+  const [showCTABuilder, setShowCTABuilder] = useState(false);
 
   // Load data from localStorage on mount
   useEffect(() => {
@@ -91,6 +93,10 @@ const App: React.FC = () => {
     setView('wizard');
   };
 
+  const handleCreateCTA = () => {
+    setShowCTABuilder(true);
+  };
+
   const handleWizardFinish = (config: CarouselConfig, slides: SlideData[]) => {
     setCurrentProject(null);
     setInitialTemplateConfig(config);
@@ -129,12 +135,13 @@ const App: React.FC = () => {
   return (
     <>
       {view === 'home' && (
-        <WelcomeScreen 
+        <WelcomeScreen
           recentProjects={projects}
           heroImages={heroImages}
           templates={templates}
           onCreateNew={handleCreateNew}
-          onAutoCreate={handleAutoCreate} 
+          onAutoCreate={handleAutoCreate}
+          onCreateCTA={handleCreateCTA}
           onOpenProject={handleOpenProject}
           onDeleteProject={handleDeleteProject}
           onAdminClick={() => setView('admin')}
@@ -179,6 +186,13 @@ const App: React.FC = () => {
             color: '#333333',
           },
         }}
+      />
+
+      {/* CTA Builder Modal (from WelcomeScreen) */}
+      <CTABuilder
+        isOpen={showCTABuilder}
+        onClose={() => setShowCTABuilder(false)}
+        templates={templates}
       />
     </>
   );
