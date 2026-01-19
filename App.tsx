@@ -52,9 +52,24 @@ const App: React.FC = () => {
 
   const loadTemplates = () => {
     const stored = localStorage.getItem('carousel_templates');
+
+    // ID встроенных шаблонов, которые нужно обновлять из DEFAULT_TEMPLATES
+    const builtInIds = DEFAULT_TEMPLATES.map(t => t.id);
+
     if (stored) {
       try {
-        setTemplates(JSON.parse(stored));
+        const savedTemplates: Template[] = JSON.parse(stored);
+
+        // Фильтруем пользовательские шаблоны (не встроенные)
+        const customTemplates = savedTemplates.filter(t => !builtInIds.includes(t.id));
+
+        // Объединяем: актуальные встроенные + пользовательские
+        const mergedTemplates = [...DEFAULT_TEMPLATES, ...customTemplates];
+
+        setTemplates(mergedTemplates);
+
+        // Обновляем localStorage актуальными данными
+        localStorage.setItem('carousel_templates', JSON.stringify(mergedTemplates));
       } catch (e) {
         console.error("Failed to parse templates", e);
         setTemplates(DEFAULT_TEMPLATES);
