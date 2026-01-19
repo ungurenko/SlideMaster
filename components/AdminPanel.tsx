@@ -172,7 +172,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ onBack, onUpdateImages, 
         textPaddingHorizontal: 60,
         titleLineHeight: 1.2,
         bodyLineHeight: 1.5,
-        textMaxWidth: 100
+        textMaxWidth: 100,
+        coverTextPosition: 'bottom'
       }
     };
     saveTemplates([...templates, newTemplate]);

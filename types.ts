@@ -91,6 +91,9 @@ export interface CarouselConfig {
 
   // Text block width (%)
   textMaxWidth: number;
+
+  // Cover text position
+  coverTextPosition: 'bottom' | 'center';
 }
 
 export interface StylePreset {
@@ -148,7 +151,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
       textPaddingHorizontal: 60,
       titleLineHeight: 1.2,
       bodyLineHeight: 1.5,
-      textMaxWidth: 100
+      textMaxWidth: 100,
+      coverTextPosition: 'bottom'
     }
   },
   {
@@ -174,7 +178,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
       textPaddingHorizontal: 60,
       titleLineHeight: 1.2,
       bodyLineHeight: 1.5,
-      textMaxWidth: 100
+      textMaxWidth: 100,
+      coverTextPosition: 'bottom'
     }
   },
   {
@@ -200,7 +205,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
       textPaddingHorizontal: 60,
       titleLineHeight: 1.2,
       bodyLineHeight: 1.5,
-      textMaxWidth: 100
+      textMaxWidth: 100,
+      coverTextPosition: 'bottom'
     }
   },
   {
@@ -226,7 +232,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
       textPaddingHorizontal: 60,
       titleLineHeight: 1.2,
       bodyLineHeight: 1.5,
-      textMaxWidth: 100
+      textMaxWidth: 100,
+      coverTextPosition: 'bottom'
     }
   },
   {
@@ -252,7 +259,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
       textPaddingHorizontal: 60,
       titleLineHeight: 1.2,
       bodyLineHeight: 1.5,
-      textMaxWidth: 100
+      textMaxWidth: 100,
+      coverTextPosition: 'bottom'
     }
   },
   {
@@ -278,7 +286,8 @@ export const DEFAULT_TEMPLATES: Template[] = [
       textPaddingHorizontal: 60,
       titleLineHeight: 1.2,
       bodyLineHeight: 1.5,
-      textMaxWidth: 100
+      textMaxWidth: 100,
+      coverTextPosition: 'bottom'
     }
   }
 ];

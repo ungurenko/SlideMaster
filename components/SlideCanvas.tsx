@@ -94,21 +94,31 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
           />
         )}
 
-        {/* Cover Bottom Gradient Overlay (Critical for text readability) */}
-        {slide.isCover && (
+        {/* Cover Overlay (only for bottom position - gradient from bottom) */}
+        {slide.isCover && config.coverTextPosition !== 'center' && (
           <div className="absolute bottom-0 left-0 w-full h-[60%] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
+        )}
+
+        {/* Cover Overlay for center position - elliptical radial gradient */}
+        {slide.isCover && config.coverTextPosition === 'center' && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 70% 50% at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.1) 70%, transparent 100%)',
+            }}
+          />
         )}
 
         {/* Content Layer */}
         <div
-          className={`relative z-20 w-full h-full flex flex-col ${slide.isCover ? 'justify-end items-center text-center' : 'items-start text-left'}`}
+          className={`relative z-20 w-full h-full flex flex-col ${slide.isCover ? 'items-center text-center' : 'items-start text-left'}`}
           style={{
             paddingTop: slide.isCover ? '64px' : `${config.textPaddingTop ?? 60}px`,
             paddingBottom: slide.isCover ? '120px' : `${config.textPaddingBottom ?? 60}px`,
             paddingLeft: slide.isCover ? '64px' : `${config.textPaddingHorizontal ?? 60}px`,
             paddingRight: slide.isCover ? '64px' : `${config.textPaddingHorizontal ?? 60}px`,
             justifyContent: slide.isCover
-              ? 'flex-end'
+              ? (config.coverTextPosition === 'center' ? 'center' : 'flex-end')
               : (config.textVerticalAlign ?? 'top') === 'center'
                 ? 'center'
                 : (config.textVerticalAlign ?? 'top') === 'bottom'
@@ -119,8 +129,18 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
 
           {slide.isCover ? (
             // COVER SLIDE LAYOUT
-            <div className="w-full flex flex-col items-center justify-end gap-6">
-               <RichTextEditor
+            <div
+              className={`flex flex-col items-center gap-6 ${
+                config.coverTextPosition === 'center'
+                  ? 'py-16 px-12'
+                  : 'w-full justify-end'
+              }`}
+              style={config.coverTextPosition === 'center' ? {
+                minWidth: '70%',
+                maxWidth: '95%',
+              } : undefined}
+            >
+              <RichTextEditor
                 html={slide.text}
                 onChange={(val) => onTextChange(slide.id, val)}
                 placeholder="ЗАГОЛОВОК"

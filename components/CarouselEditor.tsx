@@ -192,6 +192,7 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
       bodyColor: '#FFFFFF',
       noiseOpacity: 63,
       overlayOpacity: 80,
+      coverTextPosition: 'bottom',
     });
   });
 
@@ -904,6 +905,41 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
                       <line x1="8" y1="18" x2="14" y2="18" />
                     </svg>
                     <span className="text-[9px] font-medium text-[#6B6054]">Снизу</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Cover Text Position */}
+              <div>
+                <label className="text-[10px] font-bold uppercase text-[#6B6054] mb-3 block">Позиция текста на обложке</label>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfig({ ...config, coverTextPosition: 'bottom' })}
+                    className={`flex-1 flex flex-col items-center gap-1 p-3 rounded-xl border transition-all ${
+                      (config.coverTextPosition ?? 'bottom') === 'bottom'
+                        ? 'bg-white border-[#9CAF88] shadow-sm'
+                        : 'bg-[#FCFAF7] border-[#F0EBE5] hover:border-[#D1CCC0]'
+                    }`}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="4" y="4" width="16" height="16" rx="2" strokeOpacity="0.3" />
+                      <rect x="6" y="14" width="12" height="4" rx="1" strokeOpacity="0.6" fill="currentColor" fillOpacity="0.2" />
+                    </svg>
+                    <span className="text-[9px] font-medium text-[#6B6054]">Снизу</span>
+                  </button>
+                  <button
+                    onClick={() => setConfig({ ...config, coverTextPosition: 'center' })}
+                    className={`flex-1 flex flex-col items-center gap-1 p-3 rounded-xl border transition-all ${
+                      config.coverTextPosition === 'center'
+                        ? 'bg-white border-[#9CAF88] shadow-sm'
+                        : 'bg-[#FCFAF7] border-[#F0EBE5] hover:border-[#D1CCC0]'
+                    }`}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <rect x="4" y="4" width="16" height="16" rx="2" strokeOpacity="0.3" />
+                      <rect x="6" y="9" width="12" height="6" rx="1" strokeOpacity="0.6" fill="currentColor" fillOpacity="0.2" />
+                    </svg>
+                    <span className="text-[9px] font-medium text-[#6B6054]">По центру</span>
                   </button>
                 </div>
               </div>

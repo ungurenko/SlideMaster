@@ -177,8 +177,11 @@ export const SlideEditor: React.FC<SlideEditorProps> = ({
             />
           )}
 
-          {/* Cover Bottom Gradient Overlay */}
-          {slide.isCover && (
+          {/* Cover Overlay (depends on coverTextPosition) */}
+          {slide.isCover && config.coverTextPosition === 'center' && (
+            <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+          )}
+          {slide.isCover && config.coverTextPosition !== 'center' && (
             <div className="absolute bottom-0 left-0 w-full h-[60%] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
           )}
 

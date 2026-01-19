@@ -26,5 +26,8 @@ export function migrateConfig(config: Partial<CarouselConfig>): CarouselConfig {
     titleLineHeight: config.titleLineHeight ?? 1.2,
     bodyLineHeight: config.bodyLineHeight ?? 1.5,
     textMaxWidth: config.textMaxWidth ?? 100,
+
+    // Cover text position
+    coverTextPosition: config.coverTextPosition ?? 'bottom',
   };
 }
