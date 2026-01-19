@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { CarouselConfig } from '../types';
 
 // Declaration for global libraries loaded via CDN
 declare global {
@@ -151,4 +152,78 @@ export const downloadSlides = async (
 
   // Done
   onProgress?.({ current: total, total, status: 'done' });
+};
+
+/**
+ * Downloads a single slide as JPG directly (without ZIP)
+ * Used for CTA slides and other single-slide exports
+ */
+export const downloadSingleSlide = async (
+  slideRef: React.MutableRefObject<HTMLDivElement | null>,
+  config: CarouselConfig,
+  filename: string = 'cta-slide.jpg'
+) => {
+  if (!window.html2canvas || !window.saveAs) {
+    alert("Необходимые библиотеки (html2canvas) еще не загружены. Пожалуйста, подождите или обновите страницу.");
+    return;
+  }
+
+  const originalElement = slideRef.current;
+  if (!originalElement) {
+    throw new Error('Slide element not found');
+  }
+
+  let clone: HTMLElement | null = null;
+
+  try {
+    // 1. CLONE THE NODE
+    clone = originalElement.cloneNode(true) as HTMLElement;
+
+    // 2. RESET TRANSFORMS & POSITIONING
+    clone.style.transform = 'none';
+    clone.style.width = '1080px';
+    clone.style.height = '1350px';
+    clone.style.position = 'fixed';
+    clone.style.top = '0';
+    clone.style.left = '0';
+    clone.style.zIndex = '-9999';
+    clone.style.borderRadius = '0';
+
+    // 3. APPEND TO BODY
+    document.body.appendChild(clone);
+
+    // --- FIX: NOISE LAYER BLEND MODE ---
+    const noiseLayer = clone.querySelector('.export-noise-layer') as HTMLElement;
+    if (noiseLayer) {
+      const computedStyle = window.getComputedStyle(noiseLayer);
+      const originalOpacity = parseFloat(computedStyle.opacity || '0');
+      noiseLayer.style.mixBlendMode = 'normal';
+      noiseLayer.style.opacity = (originalOpacity * 0.25).toString();
+    }
+
+    // 4. CAPTURE
+    const canvas = await window.html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false,
+      allowTaint: true,
+    });
+
+    // 5. BLOB GENERATION
+    const blob = await new Promise<Blob | null>((resolve) => {
+      canvas.toBlob((b: Blob | null) => resolve(b), 'image/jpeg', 0.95);
+    });
+
+    if (blob) {
+      window.saveAs(blob, filename);
+    } else {
+      throw new Error('Failed to generate image blob');
+    }
+  } finally {
+    // 6. CLEAN UP
+    if (clone && document.body.contains(clone)) {
+      document.body.removeChild(clone);
+    }
+  }
 };

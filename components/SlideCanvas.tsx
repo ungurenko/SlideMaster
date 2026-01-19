@@ -40,6 +40,132 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
       />
     );
   }
+
+  // Resolve colors with fallback to general textColor
+  const titleColor = config.titleColor || config.textColor;
+  const bodyColor = config.bodyColor || config.textColor;
+
+  // CTA Slide Layout
+  if (slide.isCTA) {
+    const borderRadius = slide.ctaImageBorderRadius ?? 24;
+
+    const containerStyle = {
+      width: '1080px',
+      height: '1350px',
+      transform: `scale(${scale})`,
+      transformOrigin: 'top left',
+      backgroundColor: '#1a1816',
+    };
+
+    const wrapperStyle = {
+      width: `${1080 * scale}px`,
+      height: `${1350 * scale}px`,
+    };
+
+    return (
+      <div style={wrapperStyle} className="relative overflow-hidden shadow-lg rounded-sm ring-1 ring-black/5">
+        <div
+          ref={forwardedRef}
+          style={containerStyle}
+          className="relative flex flex-col overflow-hidden"
+        >
+          {/* Background Image Layer */}
+          {config.backgroundImage && (
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${config.backgroundImage})`,
+              }}
+            />
+          )}
+
+          {/* Dark Overlay */}
+          <div
+            className="absolute inset-0 bg-[#0F0E0D] transition-colors duration-300"
+            style={{ opacity: config.overlayOpacity / 100 }}
+          />
+
+          {/* Noise Texture */}
+          <div
+            className="absolute inset-0 pointer-events-none mix-blend-overlay export-noise-layer"
+            style={{
+              backgroundImage: `url("${NOISE_SVG_DATA_URI}")`,
+              opacity: config.noiseOpacity / 100
+            }}
+          />
+
+          {/* CTA Content Layout */}
+          <div className="relative z-20 w-full h-full flex flex-col items-center justify-between py-[80px] px-[60px]">
+            {/* Top Text - approx 15% */}
+            <div className="w-full text-center" style={{ flex: '0 0 auto' }}>
+              <div
+                style={{
+                  fontFamily: config.titleFont,
+                  fontSize: `${config.titleFontSize}px`,
+                  fontWeight: 700,
+                  color: titleColor,
+                  lineHeight: config.titleLineHeight || 1.3,
+                  textShadow: '0 4px 24px rgba(0,0,0,0.5)',
+                }}
+              >
+                {slide.ctaTopText || ''}
+              </div>
+            </div>
+
+            {/* Center Image - approx 55% */}
+            <div
+              className="flex-1 flex items-center justify-center w-full my-[40px]"
+              style={{ maxHeight: '60%' }}
+            >
+              {slide.ctaImage ? (
+                <div
+                  className="relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)]"
+                  style={{
+                    borderRadius: `${borderRadius}px`,
+                    maxWidth: '85%',
+                    maxHeight: '100%',
+                  }}
+                >
+                  <img
+                    src={slide.ctaImage}
+                    alt="CTA"
+                    className="w-full h-full object-contain"
+                    style={{ maxHeight: '650px' }}
+                  />
+                </div>
+              ) : (
+                <div
+                  className="w-[85%] h-[500px] bg-white/10 flex items-center justify-center text-white/30"
+                  style={{ borderRadius: `${borderRadius}px` }}
+                >
+                  {/* Placeholder icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+
+            {/* Bottom CTA Text - approx 15% */}
+            <div className="w-full text-center" style={{ flex: '0 0 auto' }}>
+              <div
+                style={{
+                  fontFamily: config.bodyFont,
+                  fontSize: `${config.bodyFontSize + 8}px`,
+                  fontWeight: 500,
+                  color: bodyColor,
+                  lineHeight: config.bodyLineHeight || 1.5,
+                  textShadow: '0 2px 12px rgba(0,0,0,0.4)',
+                }}
+              >
+                {slide.ctaBottomText || ''}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   // Dimensions: 1080x1350 (Portrait)
   const containerStyle = {
     width: '1080px',
@@ -53,10 +179,6 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
     width: `${1080 * scale}px`,
     height: `${1350 * scale}px`,
   };
-
-  // Resolve colors with fallback to general textColor
-  const titleColor = config.titleColor || config.textColor;
-  const bodyColor = config.bodyColor || config.textColor;
 
   return (
     <div style={wrapperStyle} className="relative overflow-hidden shadow-lg rounded-sm ring-1 ring-black/5">

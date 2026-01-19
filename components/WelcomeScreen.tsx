@@ -49,6 +49,12 @@ const SparklesIcon = () => (
     </svg>
   );
 
+const MegaphoneIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M10.34 15.84c-.688-.06-1.386-.09-2.09-.09H7.5a4.5 4.5 0 110-9h.75c.704 0 1.402-.03 2.09-.09m0 9.18c.253.962.584 1.892.985 2.783.247.55.06 1.21-.463 1.511l-.657.38c-.551.318-1.26.117-1.527-.461a20.845 20.845 0 01-1.44-4.282m3.102.069a18.03 18.03 0 01-.59-4.59c0-1.586.205-3.124.59-4.59m0 9.18a23.848 23.848 0 018.835 2.535M10.34 6.66a23.847 23.847 0 008.835-2.535m0 0A23.74 23.74 0 0018.795 3m.38 1.125a23.91 23.91 0 011.014 5.395m-1.014 8.855c-.118.38-.245.754-.38 1.125m.38-1.125a23.91 23.91 0 001.014-5.395m0-3.46c.495.413.811 1.035.811 1.73 0 .695-.316 1.317-.811 1.73m0-3.46a24.347 24.347 0 010 3.46" />
+  </svg>
+);
+
 interface WelcomeScreenProps {
   recentProjects: SavedProject[];
   heroImages?: HeroImage[];
@@ -56,6 +62,7 @@ interface WelcomeScreenProps {
   isLoading?: boolean;
   onCreateNew: (templateConfig?: CarouselConfig) => void;
   onAutoCreate: () => void;
+  onCreateCTA?: () => void;
   onOpenProject: (project: SavedProject) => void;
   onDeleteProject: (id: string, e: React.MouseEvent) => void;
   onAdminClick: () => void;
@@ -68,6 +75,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   isLoading = false,
   onCreateNew,
   onAutoCreate,
+  onCreateCTA,
   onOpenProject,
   onDeleteProject,
   onAdminClick
@@ -169,7 +177,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                  
                  <div className="flex flex-col gap-4">
                     {/* Primary: Manual Create */}
-                    <button 
+                    <button
                       onClick={() => onCreateNew()}
                       className="w-full py-4 bg-[#4A4036] text-white text-lg font-medium rounded-2xl shadow-[0_10px_25px_rgba(74,64,54,0.3)] hover:bg-[#3A3026] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3"
                     >
@@ -177,7 +185,7 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                     </button>
 
                      {/* Secondary: Auto Create */}
-                     <button 
+                     <button
                       onClick={onAutoCreate}
                       className="w-full py-4 bg-[#9CAF88] text-white text-lg font-medium rounded-2xl shadow-[0_10px_25px_rgba(156,175,136,0.4)] hover:bg-[#8A9E75] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3 relative overflow-hidden group"
                     >
@@ -185,6 +193,17 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
                         <SparklesIcon />
                         <span>Создать автоматически</span>
                     </button>
+
+                    {/* Tertiary: CTA Slide */}
+                    {onCreateCTA && (
+                      <button
+                        onClick={onCreateCTA}
+                        className="w-full py-4 bg-white text-[#6B6054] text-lg font-medium rounded-2xl border-2 border-[#F0EBE5] shadow-[0_4px_15px_rgba(0,0,0,0.03)] hover:border-[#D1CCC0] hover:bg-[#FCFAF7] hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center gap-3"
+                      >
+                          <MegaphoneIcon />
+                          <span>Создать CTA-слайд</span>
+                      </button>
+                    )}
                  </div>
               </div>
            </div>

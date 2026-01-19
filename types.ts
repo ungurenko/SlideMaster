@@ -33,6 +33,12 @@ export interface SlideData {
   // New positioned blocks format
   blocks?: TextBlock[];
   usePositionedBlocks?: boolean;
+  // CTA slide fields
+  isCTA?: boolean;
+  ctaTopText?: string;
+  ctaBottomText?: string;
+  ctaImage?: string;           // Base64 of uploaded image
+  ctaImageBorderRadius?: number; // Border radius in px (default: 24)
 }
 
 export enum FontFamily {
