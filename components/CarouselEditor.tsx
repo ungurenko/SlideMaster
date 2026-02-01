@@ -963,6 +963,18 @@ export const CarouselEditor: React.FC<CarouselEditorProps> = ({
                     <span className="text-[9px] font-medium text-[#6B6054]">По центру</span>
                   </button>
                 </div>
+
+                {/* Cover Overlay Opacity Slider */}
+                <div className="mt-4">
+                  <Slider
+                    label="Затемнение подложки"
+                    value={config.coverOverlayOpacity ?? 50}
+                    min={0}
+                    max={100}
+                    onChange={(val) => setConfig({ ...config, coverOverlayOpacity: val })}
+                    unit="%"
+                  />
+                </div>
               </div>
 
               {/* Padding Controls */}

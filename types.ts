@@ -108,6 +108,9 @@ export interface CarouselConfig {
 
   // Cover text position
   coverTextPosition: 'bottom' | 'center';
+
+  // Cover overlay opacity (0-100, default 50)
+  coverOverlayOpacity?: number;
 }
 
 export interface StylePreset {

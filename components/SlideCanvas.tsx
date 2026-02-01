@@ -217,28 +217,39 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
         )}
 
         {/* Cover Overlay (only for bottom position - gradient from bottom) */}
-        {slide.isCover && config.coverTextPosition !== 'center' && (
-          <div className="absolute bottom-0 left-0 w-full h-[60%] bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-        )}
+        {slide.isCover && config.coverTextPosition !== 'center' && (() => {
+          const coverOpacity = (config.coverOverlayOpacity ?? 50) / 100;
+          return (
+            <div
+              className="absolute bottom-0 left-0 w-full h-[60%] pointer-events-none"
+              style={{
+                background: `linear-gradient(to top, rgba(0,0,0,${coverOpacity * 0.9}) 0%, rgba(0,0,0,${coverOpacity * 0.4}) 50%, transparent 100%)`
+              }}
+            />
+          );
+        })()}
 
         {/* Cover Overlay for center position - elliptical radial gradient */}
-        {slide.isCover && config.coverTextPosition === 'center' && (
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'radial-gradient(ellipse 70% 50% at center, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 40%, rgba(0,0,0,0.1) 70%, transparent 100%)',
-            }}
-          />
-        )}
+        {slide.isCover && config.coverTextPosition === 'center' && (() => {
+          const coverOpacity = (config.coverOverlayOpacity ?? 50) / 100;
+          return (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse 70% 50% at center, rgba(0,0,0,${coverOpacity}) 0%, rgba(0,0,0,${coverOpacity * 0.6}) 40%, rgba(0,0,0,${coverOpacity * 0.2}) 70%, transparent 100%)`,
+              }}
+            />
+          );
+        })()}
 
         {/* Content Layer */}
         <div
           className={`relative z-20 w-full h-full flex flex-col ${slide.isCover ? 'items-center text-center' : 'items-start text-left'}`}
           style={{
-            paddingTop: slide.isCover ? '64px' : `${config.textPaddingTop ?? 60}px`,
-            paddingBottom: slide.isCover ? '120px' : `${config.textPaddingBottom ?? 60}px`,
-            paddingLeft: slide.isCover ? '64px' : `${config.textPaddingHorizontal ?? 60}px`,
-            paddingRight: slide.isCover ? '64px' : `${config.textPaddingHorizontal ?? 60}px`,
+            paddingTop: slide.isCover ? '32px' : `${config.textPaddingTop ?? 60}px`,
+            paddingBottom: slide.isCover ? '80px' : `${config.textPaddingBottom ?? 60}px`,
+            paddingLeft: slide.isCover ? '32px' : `${config.textPaddingHorizontal ?? 60}px`,
+            paddingRight: slide.isCover ? '32px' : `${config.textPaddingHorizontal ?? 60}px`,
             justifyContent: slide.isCover
               ? (config.coverTextPosition === 'center' ? 'center' : 'flex-end')
               : (config.textVerticalAlign ?? 'top') === 'center'
@@ -254,12 +265,12 @@ export const SlideCanvas: React.FC<SlideCanvasProps> = ({
             <div
               className={`flex flex-col items-center gap-6 ${
                 config.coverTextPosition === 'center'
-                  ? 'py-16 px-12'
+                  ? 'py-16 px-4'
                   : 'w-full justify-end'
               }`}
               style={config.coverTextPosition === 'center' ? {
-                minWidth: '70%',
-                maxWidth: '95%',
+                minWidth: '80%',
+                maxWidth: '98%',
               } : undefined}
             >
               <RichTextEditor
